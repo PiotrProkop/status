@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: status-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: status-server
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: status-server
+    spec:
+      automountServiceAccountToken: true
+      containers:
+      - command:
+        - /status-server
+        - -port
+        - "9000"
+        - -interval
+        - 1s
+        image: status-server
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 5
+          periodSeconds: 30
+          successThreshold: 1
+          tcpSocket:
+            port: metrics
+          timeoutSeconds: 1
+        name: status-server
+        ports:
+        - containerPort: 9000
+          name: metrics
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          tcpSocket:
+            port: metrics
+          timeoutSeconds: 1
+      securityContext:
+        runAsUser: 8000

@@ -1,0 +1,8 @@
+namespace: default
+
+resources:
+- deployment.yaml
+images:
+- name: status-server
+  newName: 054689439298.dkr.ecr.us-west-2.amazonaws.com/zookeeper
+  newTag: status
