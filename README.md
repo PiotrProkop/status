@@ -85,7 +85,7 @@ $ make tests
 
 ## Deploying to Kubernetes
 
-In `kubernetes` directory, one can find `kustomization` file and deployment manifest to deploy `status-server` to Kubernetes.
+In `kubernetes` directory, one can find `kustomization` file, deployment and service manifest to deploy `status-server` to Kubernetes.
 Before deploying make sure the `images` section of `kustomization.yaml` file is edited to point to docker registry where `status-server` image is present.
 To deploy in other namespace than `default` change `namespace` section of `kustomization.yaml` file.
 To install `status-server` to Kubernetes, execute:

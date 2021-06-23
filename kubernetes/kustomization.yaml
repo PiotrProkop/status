@@ -2,6 +2,7 @@ namespace: default
 
 resources:
 - deployment.yaml
+- service.yaml
 images:
 - name: status-server
   newName: docker.io/my-repo/status-server

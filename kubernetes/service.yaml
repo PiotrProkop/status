@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: status-server
+  labels:
+    app: status-server
+spec:
+  selector:
+    app: status-server
+  ports:
+  - name: metrics
+    port: 9000
