@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/PiotrProkop/status/internal/handlers"
+	"github.com/PiotrProkop/status/internal/check"
 	"github.com/PiotrProkop/status/internal/metrics"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -34,7 +34,7 @@ func SpawnChecker(closeChan chan struct{}, interval time.Duration, url string) {
 		case <-closeChan:
 			return
 		case <-ticker.C:
-			if err := handlers.CheckURL(url); err != nil {
+			if err := check.URL(url); err != nil {
 				logger.Println(err)
 			}
 		}
@@ -51,6 +51,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.HandlerFor(registry, promhttp.HandlerOpts{}))
 
+	// prepare channels
 	done := make(chan struct{})
 	quit := make(chan os.Signal, 1)
 
@@ -77,6 +78,7 @@ func main() {
 		ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout*time.Second)
 		defer cancel()
 
+		// shutdown gracefully to drain all current connections
 		if err := server.Shutdown(ctx); err != nil {
 			log.Fatalf("Could not gracefully shutdown the server: %v\n", err)
 		}
@@ -84,6 +86,7 @@ func main() {
 		close(done)
 	}()
 
+	log.Println("Server is ready to serve metrics at", fmt.Sprintf(":%d/metrics", port))
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("Could not listen on %s: %v\n", ":8080", err)
 	}

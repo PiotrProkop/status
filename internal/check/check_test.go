@@ -1,4 +1,4 @@
-package handlers
+package check
 
 import (
 	"fmt"
@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// mock Doer interface for testing purposes
 type fakeDoer struct {
 	response  *http.Response
 	err       error
@@ -23,6 +24,7 @@ func (d fakeDoer) Do(r *http.Request) (*http.Response, error) {
 	return d.response, d.err
 }
 
+// body implements io.ReadCloser interface to mock response.Body
 type body struct {
 }
 
@@ -69,7 +71,7 @@ var checkURLTests = []struct {
 	},
 }
 
-func TestCheckURL(t *testing.T) {
+func TestURL(t *testing.T) {
 	for _, test := range checkURLTests {
 		client = &fakeDoer{
 			response:  test.response,
@@ -77,7 +79,7 @@ func TestCheckURL(t *testing.T) {
 			sleepTime: test.sleepTime,
 		}
 
-		err := CheckURL(test.url)
+		err := URL(test.url)
 		if test.err != nil {
 			assert.EqualError(t, test.err, err.Error())
 		} else {

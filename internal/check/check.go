@@ -1,8 +1,9 @@
-package handlers
+package check
 
 import (
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/PiotrProkop/status/internal/metrics"
@@ -10,6 +11,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
+// register metrics
 func init() {
 	registry := metrics.GetRegistry()
 	registry.MustRegister(responseTime)
@@ -33,9 +35,12 @@ var (
 			"url",
 		},
 	)
-	logger = log.Logger{}
-	up     = 1
-	down   = 0
+	errLogger = log.New(os.Stdout, "ERROR:", log.Ldate|log.Ltime|log.Lshortfile)
+)
+
+const (
+	up   float64 = 1
+	down float64 = 0
 )
 
 // Doer is an interface that allows us to replace http.Client with any other struct implementing Do() function.
@@ -45,7 +50,8 @@ type Doer interface {
 
 var client Doer = &http.Client{}
 
-func CheckURL(url string) error {
+// URL checks given url for status code and set appropiate Prometheus metric
+func URL(url string) error {
 	start := time.Now()
 	request, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
@@ -57,16 +63,18 @@ func CheckURL(url string) error {
 		return err
 	}
 
+	// close response body and log errors
 	defer func() {
 		if err := response.Body.Close(); err != nil {
-			logger.Println(err)
+			errLogger.Println()
 		}
 	}()
 
+	// we assume that only StatusCode == 200 means the service is UP
 	if response.StatusCode == http.StatusOK {
-		healthy.WithLabelValues(url).Set(float64(up))
+		healthy.WithLabelValues(url).Set(up)
 	} else {
-		healthy.WithLabelValues(url).Set(float64(down))
+		healthy.WithLabelValues(url).Set(down)
 	}
 
 	duration := time.Since(start).Milliseconds()
