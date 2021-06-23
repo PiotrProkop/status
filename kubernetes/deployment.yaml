@@ -7,14 +7,11 @@ spec:
   selector:
     matchLabels:
       app: status-server
-  strategy:
-    type: Recreate
   template:
     metadata:
       labels:
         app: status-server
     spec:
-      automountServiceAccountToken: true
       containers:
       - command:
         - /status-server
