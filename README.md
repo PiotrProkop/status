@@ -80,7 +80,7 @@ sample_external_url_up{url="https://httpstat.us/503"} 0
 To run unit tests execute:
 
 ```sh
-make tests
+$ make tests
 ```
 
 ## Deploying to Kubernetes
@@ -90,8 +90,8 @@ Before deploying make sure the `images` section of `kustomization.yaml` file is 
 To deploy in other namespace than `default` change `namespace` section of `kustomization.yaml` file.
 To install `status-server` to Kubernetes, execute:
 
-```
-kubectl apply -f kubernetes
+```sh
+$ kubectl apply -k kubernetes
 ```
 
 ## Testing locally Prometheus integration
