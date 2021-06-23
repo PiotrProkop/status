@@ -28,6 +28,11 @@ var (
 )
 
 func SpawnChecker(closeChan chan struct{}, interval time.Duration, url string) {
+	// populate metrics, if the interval is long we need to make sure we are serving metrics from the startup of application
+	if err := check.URL(url); err != nil {
+		logger.Println(err)
+	}
+
 	ticker := time.NewTicker(interval)
 	for {
 		select {
